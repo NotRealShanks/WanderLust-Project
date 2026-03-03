@@ -16,6 +16,8 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 
+const listingController = require("./controllers/listing.js");
+
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
@@ -61,9 +63,7 @@ const sessionOptions = {
     },
 };
 
-app.get("/", (req, res) => {
-    res.redirect("/listings");
-});
+app.get("/", listingController.index);
 
 app.use(session(sessionOptions));
 app.use(flash());
