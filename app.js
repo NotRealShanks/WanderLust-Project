@@ -63,7 +63,6 @@ const sessionOptions = {
     },
 };
 
-app.get("/", listingController.index);
 
 app.use(session(sessionOptions));
 app.use(flash());
@@ -91,6 +90,8 @@ app.use((req, res, next) => {
 //     let registeredUser = await User.register(fakeUser, "helloworld");
 //     res.send(registeredUser);
 // });
+
+app.get("/", listingController.index);
 
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
