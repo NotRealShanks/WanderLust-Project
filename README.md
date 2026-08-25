@@ -134,7 +134,7 @@ node app.js
 
 The application is deployed via **Render**, connected to **MongoDB Atlas** as the cloud database.
 
-🔗 **Live Demo:** https://wanderlust-travel-listings.onrender.com/
+🔗 **Live Demo:** Hosted Demo Coming Soon
 
 ---
 
