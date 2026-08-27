@@ -62,10 +62,14 @@ const sessionOptions = {
     cookie: {
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
         maxAge: 7 * 24 * 60 * 60 * 1000,
-        httpOnly: true
-    },
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production"
+    }
 };
 
+if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+}
 
 app.use(session(sessionOptions));
 app.use(flash());
