@@ -5,6 +5,7 @@ require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") }
 const mongoose = require("mongoose");
 const initData = require("./data.js");
 const Listing = require("../models/listing.js");
+const User = require("../models/user.js");
 
 const MONGO_URL = process.env.ATLASDB_URL;
 
@@ -67,6 +68,12 @@ function inferCategory(listing) {
 
 const initDB = async () => {
     await Listing.deleteMany({});
+
+    const owner = await User.findOne();
+
+    if (!owner) {
+        throw new Error("No user found. Create an account before running the seed script.");
+    }
 
     const geocodedListings = [];
     for (const obj of initData.data) {
