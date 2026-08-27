@@ -1,11 +1,59 @@
 const Listing = require("../models/listing");
-const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
-const mapToken = process.env.MAP_TOKEN;
-const geocodingClient = mbxGeocoding({ accessToken: mapToken });
+
+// --- Mapbox geocoding (commented out — requires a paid/card-linked API token) ---
+// const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+// const mapToken = process.env.MAP_TOKEN;
+// const geocodingClient = mbxGeocoding({ accessToken: mapToken });
+
+// --- Nominatim (commented out — blocked scripted requests with 403) ---
+// async function geocodeLocation(query) {
+//     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
+//     const res = await fetch(url, {
+//         headers: { "User-Agent": "WanderLust-Project/1.0 (student project; contact: your-email@example.com)" }
+//     });
+//     if (!res.ok) throw new Error(`Nominatim geocoding failed with status ${res.status}`);
+//     const data = await res.json();
+//     if (!data.length) throw new Error(`Could not find coordinates for location: "${query}"`);
+//     return { type: "Point", coordinates: [parseFloat(data[0].lon), parseFloat(data[0].lat)] };
+// }
+
+// Free geocoding via Photon (Komoot), built on OpenStreetMap data — no API key required
+// https://photon.komoot.io/
+async function geocodeLocation(query) {
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1`;
+    const res = await fetch(url);
+
+    if (!res.ok) {
+        throw new Error(`Photon geocoding failed with status ${res.status}`);
+    }
+
+    const data = await res.json();
+    if (!data.features || !data.features.length) {
+        throw new Error(`Could not find coordinates for location: "${query}"`);
+    }
+
+    return data.features[0].geometry;
+}
 
 module.exports.index = async (req, res) => {
-    const allListings = await Listing.find({});
-    res.render("listings/index", {allListings});
+    const { category, search } = req.query;
+    let filter = {};
+
+    if (category) {
+        filter.category = category;
+    }
+
+    if (search) {
+        const regex = new RegExp(search, "i");
+        filter.$or = [
+            { title: regex },
+            { location: regex },
+            { country: regex },
+        ];
+    }
+
+    const allListings = await Listing.find(filter);
+    res.render("listings/index", { allListings, category: category || null, search: search || "" });
 };
 
 module.exports.renderNewForm = (req, res) => {    
@@ -31,12 +79,13 @@ module.exports.showListing = async (req, res) => {
 };
 
 module.exports.createListing = async (req, res, next) => {
-    let response = await geocodingClient
-        .forwardGeocode({
-            query: req.body.listing.location,
-            limit: 1,
-        })
-        .send();
+    // --- Old Mapbox geocoding call (commented out) ---
+    // let response = await geocodingClient
+    //     .forwardGeocode({
+    //         query: req.body.listing.location,
+    //         limit: 1,
+    //     })
+    //     .send();
 
     let url = req.file.path;
     let filename = req.file.filename;
@@ -44,8 +93,17 @@ module.exports.createListing = async (req, res, next) => {
     const newListing = new Listing(req.body.listing);
     newListing.owner = req.user._id;
     newListing.image = { url, filename };
-    
-    newListing.geometry = response.body.features[0].geometry;
+
+    try {
+        newListing.geometry = await geocodeLocation(
+            `${req.body.listing.location}, ${req.body.listing.country}`
+        );
+        // Old Mapbox equivalent was: newListing.geometry = response.body.features[0].geometry;
+    } catch (err) {
+        console.error("Geocoding error:", err.message);
+        req.flash("error", "Couldn't find that location on the map. Please check the location/country and try again.");
+        return res.redirect("/listings/new");
+    }
 
     let savedListing = await newListing.save();
     console.log(savedListing);
