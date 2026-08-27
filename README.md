@@ -13,7 +13,9 @@
 **Highlights:**
 - 📱 **Mobile-Responsive Layout** — Adapts seamlessly across desktops, tablets, and phones
 - 🧭 **Intuitive Navigation** — Clean UI for browsing, searching, and managing listings
-- 🗺 **Mapbox Integration** — Pinpoints exact property locations on an interactive map
+- 🗺 **Leaflet + OpenStreetMap** — Pinpoints exact property locations on an interactive map, no paid API key required
+- 🌗 **Dark / Light Mode** — Theme toggle with saved preference and no flash-of-wrong-theme on load
+- 🏷 **Category Filters** — Browse listings by category (beach, farmhouse, villa, and more) with live search
 - 🎨 **Dynamic Views** — Powered by EJS templates for modular, reusable components
 
 ---
@@ -52,7 +54,8 @@ All listing photos are stored and served via **Cloudinary**, ensuring fast load 
 - 🔎 **Smart Search and Filtering** — Quickly narrow down listings by category and location
 - ⭐ **Ratings and Reviews** — Guests can rate and review properties they have stayed at
 - 🔒 **Data Security** — Input validation, encrypted sessions, and secure environment variables
-- 🗺 **Map-Based Discovery** — Find properties visually using Mapbox-powered maps
+- 🗺 **Map-Based Discovery** — Find properties visually using free, key-free Leaflet/OpenStreetMap maps
+- 🌗 **Dark/Light Mode** — Toggle theme with persisted preference across sessions
 - ✅ **Dual-Side Validation** — Both client and server validate all inputs with Joi
 - 🍪 **Session and Cookie Management** — Persistent auth state with flash notifications
 - 🏗 **MVC Pattern** — Organized codebase following Model-View-Controller architecture
@@ -65,10 +68,9 @@ All listing photos are stored and served via **Cloudinary**, ensuring fast load 
 ### 🔧 Prerequisites
 
 Make sure you have the following installed and set up:
-- 🟢 Node.js v14 or higher
+- 🟢 Node.js v20 or higher
 - 🍃 MongoDB Atlas account
 - ☁ Cloudinary account
-- 🗺 Mapbox API token
 
 ### 📋 Setup Instructions
 
@@ -93,8 +95,6 @@ SECRET=your_session_secret_key
 CLOUD_NAME=your_cloudinary_cloud_name
 CLOUD_API_KEY=your_cloudinary_api_key
 CLOUD_API_SECRET=your_cloudinary_api_secret
-
-MAP_TOKEN=your_mapbox_api_token
 ```
 
 **4. Seed sample data** *(optional)*
@@ -118,6 +118,8 @@ node app.js
 - 🟢 **Node.js** — Runtime environment
 - 🔐 **Passport.js + Passport-Local** — User authentication
 - 🧩 **Passport-Local-Mongoose** — Mongoose-based auth helpers
+- 🗺 **Leaflet.js** — Interactive maps rendered on OpenStreetMap tiles, no API key
+- 📍 **Photon (Komoot)** — Free geocoding for turning listing locations into map coordinates
 - 🖼 **Cloudinary** — Cloud image storage
 - 📤 **Multer** — File upload middleware
 - 📄 **EJS** — Server-side templating
