@@ -33,7 +33,7 @@
     font-weight: 800;
     font-size: 1.4rem;
     letter-spacing: -0.02em;
-    color: #222222;
+    color: var(--text-color);;
   }
 
   .host-btn {
@@ -108,8 +108,12 @@
         </form>
       </div>
 
-      <div class="navbar-nav ms-auto align-items-md-center">
-        <a class="nav-link host-btn me-md-2" href="/listings/new">Become a Host</a>
+        <div class="navbar-nav ms-auto align-items-md-center">
+          <button id="theme-toggle" class="theme-toggle-btn me-md-2" type="button" title="Toggle dark mode">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+            <span class="visually-hidden">Toggle dark mode</span>
+          </button>
+        <a class="nav-link host-btn me-md-2" href="/listings/new">Add Your Spot</a>
         <% if(!currUser) { %>
           <div class="d-flex auth-links">
             <a class="nav-link" href="/signup">Sign Up</a>

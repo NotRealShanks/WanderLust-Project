@@ -52,6 +52,56 @@
         opacity: 0.7;
     }
 
+    /* Skeleton loading cards shown briefly on page load */
+    .skeleton-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .skeleton-img {
+        height: 20rem;
+        border-radius: 1rem;
+        background: linear-gradient(90deg, var(--footer-bg) 25%, var(--border-color) 50%, var(--footer-bg) 75%);
+        background-size: 200% 100%;
+        animation: skeleton-shimmer 1.4s ease-in-out infinite;
+    }
+
+    .skeleton-line {
+        height: 0.9rem;
+        border-radius: 0.3rem;
+        margin-top: 0.6rem;
+        background: linear-gradient(90deg, var(--footer-bg) 25%, var(--border-color) 50%, var(--footer-bg) 75%);
+        background-size: 200% 100%;
+        animation: skeleton-shimmer 1.4s ease-in-out infinite;
+    }
+
+    .skeleton-line.short {
+        width: 50%;
+    }
+
+    @keyframes skeleton-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    #real-listings {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    #real-listings.visible {
+        opacity: 1;
+    }
+
+    #scroll-loader {
+        display: none;
+        text-align: center;
+        padding: 2rem 0;
+        color: var(--text-muted);
+    }
+
 </style>
 
 <div id="filters">
@@ -138,8 +188,28 @@
     </div>
 <% } %>
 
-<div class="row row-cols-lg-3 row-cols-mid-2 row-cols-sm-1 mt-3">
-        <% for(let listing of allListings) { %>
+<!-- Skeleton placeholders shown briefly while the real listings fade in -->
+<div id="skeleton-listings" class="row row-cols-lg-3 row-cols-mid-2 row-cols-sm-1 mt-3">
+    <% for(let i = 0; i < 6; i++) { %>
+        <div class="col">
+            <div class="skeleton-card">
+                <div class="skeleton-img"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<div
+    id="real-listings"
+    class="row row-cols-lg-3 row-cols-mid-2 row-cols-sm-1 mt-3"
+    data-has-more="<%= hasMore %>"
+    data-next-page="<%= nextPage %>"
+    data-category="<%= category || '' %>"
+    data-search="<%= search || '' %>"
+>
+    <% for(let listing of allListings) { %>
         <a href="/listings/<%= listing._id %>" class="listing-link">
             <div class="card col listing-card">
                 <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image" style="height: 20rem;">
@@ -159,6 +229,11 @@
     <% } %>
 </div>
 
+<div id="scroll-loader">
+    <i class="fa-solid fa-circle-notch fa-spin"></i> Loading more stays...
+</div>
+<div id="scroll-sentinel"></div>
+
 <script>
     let taxSwitch = document.getElementById('flexSwitchCheckDefault');
     taxSwitch.addEventListener("click", () => {
@@ -171,4 +246,87 @@
             }
         }
     })
+
+    // Show a brief skeleton-loading state before revealing the real listings
+    const skeletonEl = document.getElementById('skeleton-listings');
+    const realListingsEl = document.getElementById('real-listings');
+
+    setTimeout(() => {
+        skeletonEl.style.display = 'none';
+        realListingsEl.style.display = 'flex';
+        // Force a reflow so the opacity transition actually plays
+        void realListingsEl.offsetWidth;
+        realListingsEl.classList.add('visible');
+    }, 600);
+
+    // Infinite scroll: fetch and append more listings as the user nears the bottom
+    let hasMore = realListingsEl.dataset.hasMore === 'true';
+    let nextPage = parseInt(realListingsEl.dataset.nextPage, 10);
+    const category = realListingsEl.dataset.category;
+    const search = realListingsEl.dataset.search;
+    const scrollLoader = document.getElementById('scroll-loader');
+    let isLoading = false;
+
+    function buildCard(listing) {
+        const a = document.createElement('a');
+        a.href = `/listings/${listing._id}`;
+        a.className = 'listing-link';
+
+        const categoryBadge = listing.category
+            ? `<span class="category-badge">${listing.category}</span><br>`
+            : '';
+
+        a.innerHTML = `
+            <div class="card col listing-card">
+                <img src="${listing.image.url}" class="card-img-top" alt="listing_image" style="height: 20rem;">
+                <div class="card-img-overlay"></div>
+                <div class="card-body">
+                    ${categoryBadge}
+                    <p class="card-text">
+                        <b>${listing.title}</b> <br>
+                        &#8377; ${Number(listing.price).toLocaleString("en-IN")} / night
+                        <i class="tax-info" style="display: ${taxSwitch.checked ? 'inline' : 'none'};"> &nbsp; &nbsp;+18% GST</i>
+                    </p>
+                </div>
+            </div>
+        `;
+        return a;
+    }
+
+    async function loadMoreListings() {
+        if (isLoading || !hasMore) return;
+        isLoading = true;
+        scrollLoader.style.display = 'block';
+
+        try {
+            const params = new URLSearchParams({ ajax: 'true', page: nextPage });
+            if (category) params.set('category', category);
+            if (search) params.set('search', search);
+
+            const res = await fetch(`/listings?${params.toString()}`);
+            const data = await res.json();
+
+            data.listings.forEach((listing) => {
+                realListingsEl.appendChild(buildCard(listing));
+            });
+
+            hasMore = data.hasMore;
+            nextPage = data.nextPage;
+        } catch (err) {
+            console.error('Failed to load more listings:', err);
+            hasMore = false; // stop retrying on error
+        } finally {
+            isLoading = false;
+            scrollLoader.style.display = 'none';
+        }
+    }
+
+    const sentinel = document.getElementById('scroll-sentinel');
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            loadMoreListings();
+        }
+    }, { rootMargin: '300px' }); // start loading a bit before the sentinel is actually visible
+
+    observer.observe(sentinel);
 </script>

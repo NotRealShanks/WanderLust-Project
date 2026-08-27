@@ -15,4 +15,27 @@
       form.classList.add('was-validated')
     }, false)
   })
+
+  // Dark/light mode toggle
+  const root = document.documentElement;
+  const toggleBtn = document.getElementById('theme-toggle');
+  const icon = document.getElementById('theme-icon');
+
+  function updateIcon(theme) {
+    if (icon) {
+      icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    }
+  }
+
+  updateIcon(root.getAttribute('data-theme') || 'light');
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      const current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateIcon(next);
+    });
+  }
 })()

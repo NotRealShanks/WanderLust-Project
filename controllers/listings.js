@@ -52,8 +52,29 @@ module.exports.index = async (req, res) => {
         ];
     }
 
-    const allListings = await Listing.find(filter);
-    res.render("listings/index", { allListings, category: category || null, search: search || "" });
+    const PAGE_SIZE = 6;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const skip = (page - 1) * PAGE_SIZE;
+
+    const [pageListings, totalCount] = await Promise.all([
+        Listing.find(filter).skip(skip).limit(PAGE_SIZE),
+        Listing.countDocuments(filter),
+    ]);
+
+    const hasMore = skip + pageListings.length < totalCount;
+
+    // AJAX requests (from infinite scroll) get JSON; normal page loads get the full HTML page
+    if (req.query.ajax === "true") {
+        return res.json({ listings: pageListings, hasMore, nextPage: page + 1 });
+    }
+
+    res.render("listings/index", {
+        allListings: pageListings,
+        category: category || null,
+        search: search || "",
+        hasMore,
+        nextPage: page + 1,
+    });
 };
 
 module.exports.renderNewForm = (req, res) => {    
