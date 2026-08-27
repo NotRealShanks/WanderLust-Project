@@ -69,10 +69,30 @@ function inferCategory(listing) {
 const initDB = async () => {
     await Listing.deleteMany({});
 
-    const owner = await User.findOne();
+    const seedUsername = process.env.SEED_USERNAME;
+    const seedEmail = process.env.SEED_EMAIL;
+    const seedPassword = process.env.SEED_PASSWORD;
+
+    if (!seedUsername || !seedEmail || !seedPassword) {
+        throw new Error(
+            "SEED_USERNAME, SEED_EMAIL and SEED_PASSWORD must be set in .env"
+        );
+    }
+
+    let owner = await User.findOne({ username: seedUsername });
 
     if (!owner) {
-        throw new Error("No user found. Create an account before running the seed script.");
+        owner = await User.register(
+            new User({
+                username: seedUsername,
+                email: seedEmail,
+            }),
+            seedPassword
+        );
+
+        console.log(`Seed user created: ${seedUsername}`);
+    } else {
+        console.log(`Using existing seed user: ${seedUsername}`);
     }
 
     const geocodedListings = [];
@@ -82,7 +102,7 @@ const initDB = async () => {
             const geometry = await geocodeLocation(`${obj.location}, ${obj.country}`);
             geocodedListings.push({
                 ...obj,
-                owner: '6a8faa41fc9c8890939f0aff', // your real user's _id
+                owner: owner._id, // your real user's _id
                 geometry,
                 category,
             });
