@@ -1,55 +1,78 @@
-# 🧳 WanderLust
+# 🧳 WanderLust Project 🏕
 
-A full-stack property rental listing platform where users can browse, search, and post short-term rental listings — think a scaled-down Airbnb clone. Built as a hands-on project to practice the full web stack: server-rendered views, RESTful routes, authentication, cloud storage, and a real deployed database.
+## 📌 Project Overview
 
-**Live demo:** https://wanderlust-8p54.onrender.com/
-*(hosted on Render's free tier — the first request after a period of inactivity may take 30-60 seconds to wake up)*
-
----
-
-## Features
-
-- Browse and search listings by title, location, or country
-- Filter listings by category (Rooms, Mountains, Castles, Camping, and more)
-- Interactive map on each listing page showing its real location (Leaflet + OpenStreetMap, no paid API key)
-- User accounts with secure authentication (Passport.js) — sign up, log in, log out
-- Create, edit, and delete listings (only the listing's owner can edit/delete it)
-- Upload listing photos, stored and served via Cloudinary
-- Leave star ratings and written reviews on listings
-- Dark/light mode toggle with saved preference
-- Infinite scroll — listings load in batches as you scroll instead of all at once
-- Responsive layout that works on desktop and mobile
-- Server-side geocoding (Photon/Komoot) automatically converts a listing's location into map coordinates on creation
+**WanderLust** is a feature-rich, full-stack web application built to help travelers discover and book unique accommodations — from cozy cabins and beachside retreats to private villas and countryside farmhouses. Property owners can list their spaces directly on the platform, creating a vibrant marketplace for short-term rentals. The app offers a smooth and secure booking experience backed by real-time map views, cloud-based image storage, and robust authentication — all wrapped in a clean, responsive interface.
 
 ---
 
-## Tech Stack
+## 🎨 Frontend 🖥
 
-**Frontend:** EJS templating, Bootstrap, vanilla JavaScript, Leaflet.js
+**Tech Stack:** HTML, CSS, JavaScript, Bootstrap, EJS
 
-**Backend:** Node.js, Express.js, REST-style routing, MVC structure
-
-**Database:** MongoDB Atlas + Mongoose
-
-**Auth:** Passport.js (Local strategy) with `express-session` + `connect-mongo` for persistent sessions
-
-**Image storage:** Cloudinary, with uploads handled through Multer
-
-**Validation:** Joi (server-side schema validation on listings and reviews)
-
-**Geocoding & maps:** Photon (Komoot) for geocoding, Leaflet + OpenStreetMap tiles for map rendering — both free and key-free, unlike Mapbox/Google Maps which require a linked payment method
+**Highlights:**
+- 📱 **Mobile-Responsive Layout** — Adapts seamlessly across desktops, tablets, and phones
+- 🧭 **Intuitive Navigation** — Clean UI for browsing, searching, and managing listings
+- 🗺 **Leaflet + OpenStreetMap** — Pinpoints exact property locations on an interactive map, no paid API key required
+- 🌗 **Dark / Light Mode** — Theme toggle with saved preference and no flash-of-wrong-theme on load
+- 🏷 **Category Filters** — Browse listings by category (beach, farmhouse, villa, and more) with live search
+- 🎨 **Dynamic Views** — Powered by EJS templates for modular, reusable components
 
 ---
 
-## Getting Started
+## ⚙ Backend 🛠
 
-### Prerequisites
+**Tech Stack:** Node.js, Express.js
 
-- Node.js v20 or higher
-- A MongoDB Atlas account (free tier is fine)
-- A Cloudinary account (free tier is fine)
+**Highlights:**
+- 🔁 **RESTful Architecture** — Well-structured API endpoints for all core operations
+- 🔐 **Auth and Authorization** — Secure user access using Passport.js with session management
+- 📬 **Core Endpoints** — Covering property listings, user accounts, login/signup, and reviews
+- 🏷 **Listing Management** — Full CRUD flow for creating, editing, and deleting property listings
 
-### Setup
+---
+
+## 🗄 Database
+
+**System:** MongoDB Atlas
+
+**Highlights:**
+- 🧱 **Optimized Schema Design** — Cleanly modeled collections for listings, users, and reviews
+- ⚡ **Efficient Queries** — Fast retrieval and storage of property and user data
+- ☁ **Cloud-Hosted** — Managed via MongoDB Atlas for reliability and scalability
+
+---
+
+## 🖼 Cloudinary Image Storage
+
+All listing photos are stored and served via **Cloudinary**, ensuring fast load times, automatic optimization, and reliable delivery. Uploads are handled with Multer before being pushed to the cloud.
+
+---
+
+## ✨ Key Features
+
+- 🔎 **Smart Search and Filtering** — Quickly narrow down listings by category and location
+- ⭐ **Ratings and Reviews** — Guests can rate and review properties they have stayed at
+- 🔒 **Data Security** — Input validation, encrypted sessions, and secure environment variables
+- 🗺 **Map-Based Discovery** — Find properties visually using free, key-free Leaflet/OpenStreetMap maps
+- 🌗 **Dark/Light Mode** — Toggle theme with persisted preference across sessions
+- ✅ **Dual-Side Validation** — Both client and server validate all inputs with Joi
+- 🍪 **Session and Cookie Management** — Persistent auth state with flash notifications
+- 🏗 **MVC Pattern** — Organized codebase following Model-View-Controller architecture
+- 📤 **File Uploads** — Smooth image handling via Multer middleware
+
+---
+
+## 🚀 Getting Started
+
+### 🔧 Prerequisites
+
+Make sure you have the following installed and set up:
+- 🟢 Node.js v20 or higher
+- 🍃 MongoDB Atlas account
+- ☁ Cloudinary account
+
+### 📋 Setup Instructions
 
 **1. Clone the repo**
 ```bash
@@ -57,12 +80,14 @@ git clone https://github.com/NotRealShanks/WanderLust-Project.git
 cd WanderLust-Project
 ```
 
-**2. Install dependencies**
+**2. Install all dependencies**
 ```bash
 npm install
 ```
 
-**3. Create a `.env` file** in the project root:
+**3. Configure your environment**
+
+Create a `.env` file at the project root:
 ```env
 ATLASDB_URL=your_mongodb_atlas_connection_string
 SECRET=your_session_secret_key
@@ -72,52 +97,51 @@ CLOUD_API_KEY=your_cloudinary_api_key
 CLOUD_API_SECRET=your_cloudinary_api_secret
 ```
 
-> **Note:** In MongoDB Atlas, go to Network Access and allow access from your current IP (or `0.0.0.0/0` for local development) — Atlas blocks connections from IPs that aren't explicitly allowed, and this is the most common setup issue.
-
-**4. (Optional) Seed some sample listings**
+**4. Seed sample data** *(optional)*
 ```bash
 node init/index.js
 ```
-This geocodes each sample listing via Photon before inserting, so it can take 30-60 seconds to finish — that's expected, not a hang.
 
 **5. Run the app**
 ```bash
 node app.js
 ```
 
-**6.** Visit `http://localhost:8080` in your browser.
+**6.** 🌐 Visit `http://localhost:8080` in your browser 🎉
 
 ---
 
-## Project Structure
+## 📦 Technologies and Packages Used
 
-```
-├── controllers/      # Route handler logic (listings, reviews, users)
-├── models/           # Mongoose schemas (Listing, Review, User)
-├── routes/           # Express route definitions
-├── views/            # EJS templates
-├── public/           # Static assets (CSS, client-side JS, favicon)
-├── init/              # Database seeding script + sample data
-├── middleware.js      # Auth guards and ownership checks
-├── schema.js           # Joi validation schemas
-└── app.js               # App entry point
-```
-
----
-
-## Deployment
-
-Deployed on **Render** as a persistent Node web service, connected to **MongoDB Atlas** for the database and **Cloudinary** for image storage. Render was chosen over serverless platforms like Vercel because this app relies on server-side sessions and a long-running Express process, which don't fit a stateless serverless model well.
-
----
-
-## Known Limitations
-
-- No actual booking/reservation flow yet (no date selection, availability calendar, or payments) — the listing side of the app is complete, but booking is not yet implemented
-- Geocoding depends on a free public API (Photon), which occasionally rate-limits under heavy use
+- 🍃 **MongoDB + Mongoose** — Database and object modeling
+- 🚂 **Express.js** — Web framework
+- 🟢 **Node.js** — Runtime environment
+- 🔐 **Passport.js + Passport-Local** — User authentication
+- 🧩 **Passport-Local-Mongoose** — Mongoose-based auth helpers
+- 🗺 **Leaflet.js** — Interactive maps rendered on OpenStreetMap tiles, no API key
+- 📍 **Photon (Komoot)** — Free geocoding for turning listing locations into map coordinates
+- 🖼 **Cloudinary** — Cloud image storage
+- 📤 **Multer** — File upload middleware
+- 📄 **EJS** — Server-side templating
+- ✅ **Joi** — Data validation
+- 💬 **Connect-Flash** — Flash alert messages
+- 💾 **Connect-Mongo** — MongoDB-backed session store
+- 🔑 **Express-Session** — Session management
+- 🍪 **Cookie-Parser** — Cookie parsing
+- 🔒 **Dotenv** — Environment variable management
 
 ---
 
-## Author
+## 🌐 Deployment
 
-Built by **[@NotRealShanks](https://github.com/NotRealShanks)** as a learning project covering the full stack — responsive UI, RESTful APIs, authentication, cloud storage, and deployment.
+The application is deployed via **Render**, connected to **MongoDB Atlas** as the cloud database.
+
+🔗 **Live Demo:** https://wanderlust-8p54.onrender.com/
+
+---
+
+## ✍ Author
+
+Built with passion by **[@NotRealShanks](https://github.com/NotRealShanks)**
+
+This project reflects hands-on experience across the full web development stack — from designing responsive UIs and RESTful APIs to managing databases, cloud storage, and secure authentication systems.
